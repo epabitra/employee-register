@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
+
+    <!-- Create Employee Table -->
+    <changeSet id="001-create-employee-table" author="admin">
+        <createTable tableName="employees">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="first_name" type="VARCHAR(100)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="last_name" type="VARCHAR(100)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="email" type="VARCHAR(255)">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="phone" type="VARCHAR(20)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="position" type="VARCHAR(100)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="department" type="VARCHAR(100)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="salary" type="DECIMAL(10,2)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="hire_date" type="DATE">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_at" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_at" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+    <!-- Create Index on Email for faster lookups -->
+    <changeSet id="002-create-email-index" author="admin">
+        <createIndex indexName="idx_employees_email" tableName="employees">
+            <column name="email"/>
+        </createIndex>
+    </changeSet>
+
+    <!-- Insert Sample Data -->
+    <changeSet id="003-insert-sample-data" author="admin">
+        <insert tableName="employees">
+            <column name="first_name" value="John"/>
+            <column name="last_name" value="Doe"/>
+            <column name="email" value="john.doe@example.com"/>
+            <column name="phone" value="555-0001"/>
+            <column name="position" value="Senior Developer"/>
+            <column name="department" value="Engineering"/>
+            <column name="salary" value="120000.00"/>
+            <column name="hire_date" value="2020-01-15"/>
+        </insert>
+        <insert tableName="employees">
+            <column name="first_name" value="Jane"/>
+            <column name="last_name" value="Smith"/>
+            <column name="email" value="jane.smith@example.com"/>
+            <column name="phone" value="555-0002"/>
+            <column name="position" value="Product Manager"/>
+            <column name="department" value="Product"/>
+            <column name="salary" value="110000.00"/>
+            <column name="hire_date" value="2021-03-20"/>
+        </insert>
+        <insert tableName="employees">
+            <column name="first_name" value="Michael"/>
+            <column name="last_name" value="Johnson"/>
+            <column name="email" value="michael.johnson@example.com"/>
+            <column name="phone" value="555-0003"/>
+            <column name="position" value="DevOps Engineer"/>
+            <column name="department" value="Infrastructure"/>
+            <column name="salary" value="115000.00"/>
+            <column name="hire_date" value="2019-07-10"/>
+        </insert>
+    </changeSet>
+
+</databaseChangeLog>
