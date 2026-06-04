@@ -1,18 +1,11 @@
 import React, { useState } from 'react';
+import { EMPTY_EMPLOYEE_FORM, DEPARTMENTS } from '../utils/formConstants';
+import { validateEmployeeForm } from '../utils/validation';
 import '../styles/EmployeeForm.css';
 
 const EmployeeForm = ({ onSubmit, onCancel, initialData = null }) => {
   const [formData, setFormData] = useState(
-    initialData || {
-      firstName: '',
-      lastName: '',
-      email: '',
-      phone: '',
-      position: '',
-      department: '',
-      salary: '',
-      hireDate: '',
-    }
+    initialData || { ...EMPTY_EMPLOYEE_FORM }
   );
 
   const [error, setError] = useState('');
@@ -27,30 +20,11 @@ const EmployeeForm = ({ onSubmit, onCancel, initialData = null }) => {
   };
 
   const validateForm = () => {
-    if (
-      !formData.firstName ||
-      !formData.lastName ||
-      !formData.email ||
-      !formData.position ||
-      !formData.department ||
-      !formData.salary ||
-      !formData.hireDate
-    ) {
-      setError('Please fill in all required fields');
+    const validationError = validateEmployeeForm(formData);
+    if (validationError) {
+      setError(validationError);
       return false;
     }
-
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(formData.email)) {
-      setError('Please enter a valid email address');
-      return false;
-    }
-
-    if (isNaN(formData.salary) || parseFloat(formData.salary) <= 0) {
-      setError('Please enter a valid salary');
-      return false;
-    }
-
     return true;
   };
 
@@ -65,17 +39,7 @@ const EmployeeForm = ({ onSubmit, onCancel, initialData = null }) => {
     setLoading(true);
     try {
       await onSubmit(formData);
-      // Reset form on success
-      setFormData({
-        firstName: '',
-        lastName: '',
-        email: '',
-        phone: '',
-        position: '',
-        department: '',
-        salary: '',
-        hireDate: '',
-      });
+      setFormData({ ...EMPTY_EMPLOYEE_FORM });
     } catch (err) {
       setError(err.message || 'Failed to save employee');
     } finally {
@@ -165,12 +129,11 @@ const EmployeeForm = ({ onSubmit, onCancel, initialData = null }) => {
                 required
               >
                 <option value="">Select Department</option>
-                <option value="Engineering">Engineering</option>
-                <option value="Product">Product</option>
-                <option value="Infrastructure">Infrastructure</option>
-                <option value="Sales">Sales</option>
-                <option value="Marketing">Marketing</option>
-                <option value="HR">HR</option>
+                {DEPARTMENTS.map((dept) => (
+                  <option key={dept} value={dept}>
+                    {dept}
+                  </option>
+                ))}
               </select>
             </div>
 

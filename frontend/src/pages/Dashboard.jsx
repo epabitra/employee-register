@@ -3,6 +3,7 @@ import EmployeeForm from '../components/EmployeeForm';
 import EmployeeList from '../components/EmployeeList';
 import Pagination from '../components/Pagination';
 import { employeeService } from '../services/employeeService';
+import { useNotification } from '../hooks/useNotification';
 import '../styles/Dashboard.css';
 
 const Dashboard = () => {
@@ -13,8 +14,7 @@ const Dashboard = () => {
   const [totalPages, setTotalPages] = useState(0);
   const [sortBy] = useState('id');
   const [sortDirection] = useState('ASC');
-  const [successMessage, setSuccessMessage] = useState('');
-  const [errorMessage, setErrorMessage] = useState('');
+  const { successMessage, errorMessage, showSuccess, showError } = useNotification();
 
   useEffect(() => {
     loadEmployees();
@@ -31,10 +31,9 @@ const Dashboard = () => {
       );
       setEmployees(response.data.content);
       setTotalPages(response.data.totalPages);
-      setErrorMessage('');
     } catch (error) {
       console.error('Error loading employees:', error);
-      setErrorMessage('Failed to load employees. Please try again.');
+      showError('Failed to load employees. Please try again.');
       setEmployees([]);
     } finally {
       setLoading(false);
@@ -44,10 +43,9 @@ const Dashboard = () => {
   const handleAddEmployee = async (employeeData) => {
     try {
       await employeeService.createEmployee(employeeData);
-      setSuccessMessage('Employee added successfully!');
+      showSuccess('Employee added successfully!');
       setCurrentPage(0);
       await loadEmployees();
-      setTimeout(() => setSuccessMessage(''), 3000);
     } catch (error) {
       console.error('Error adding employee:', error);
       if (error.response?.data?.message) {
@@ -61,12 +59,11 @@ const Dashboard = () => {
     if (window.confirm('Are you sure you want to delete this employee?')) {
       try {
         await employeeService.deleteEmployee(id);
-        setSuccessMessage('Employee deleted successfully!');
+        showSuccess('Employee deleted successfully!');
         await loadEmployees();
-        setTimeout(() => setSuccessMessage(''), 3000);
       } catch (error) {
         console.error('Error deleting employee:', error);
-        setErrorMessage('Failed to delete employee. Please try again.');
+        showError('Failed to delete employee. Please try again.');
       }
     }
   };
