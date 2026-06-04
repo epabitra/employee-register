@@ -1,6 +1,7 @@
 package com.employee.service;
 
 import com.employee.dto.EmployeeDTO;
+import com.employee.exception.ResourceNotFoundException;
 import com.employee.model.Employee;
 import com.employee.repository.EmployeeRepository;
 import lombok.RequiredArgsConstructor;
@@ -53,7 +54,7 @@ public class EmployeeService {
     
     private Employee findEmployeeOrThrow(Long id) {
         return employeeRepository.findById(id)
-            .orElseThrow(() -> new RuntimeException("Employee not found with id: " + id));
+            .orElseThrow(() -> new ResourceNotFoundException("Employee not found"));
     }
     
     private void mapDtoToEntity(EmployeeDTO dto, Employee entity) {
