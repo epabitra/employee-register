@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import EmployeeForm from '../components/EmployeeForm';
 import EmployeeList from '../components/EmployeeList';
 import Pagination from '../components/Pagination';
@@ -16,11 +16,7 @@ const Dashboard = () => {
   const [sortDirection] = useState('ASC');
   const { successMessage, errorMessage, showSuccess, showError } = useNotification();
 
-  useEffect(() => {
-    loadEmployees();
-  }, [currentPage, pageSize]);
-
-  const loadEmployees = async () => {
+  const loadEmployees = useCallback(async () => {
     setLoading(true);
     try {
       const response = await employeeService.getAllEmployees(
@@ -38,7 +34,11 @@ const Dashboard = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [currentPage, pageSize, sortBy, sortDirection, showError]);
+
+  useEffect(() => {
+    loadEmployees();
+  }, [loadEmployees]);
 
   const handleAddEmployee = async (employeeData) => {
     try {
@@ -75,8 +75,8 @@ const Dashboard = () => {
   return (
     <div className="dashboard-container">
       <div className="dashboard-header">
-        <h1>Employee Management System</h1>
-        <p className="subtitle">Manage your employees with ease</p>
+        <h1>Employee Directory</h1>
+        <p className="subtitle">Add, view, and manage your team</p>
       </div>
 
       {successMessage && (
