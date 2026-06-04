@@ -20,14 +20,7 @@ public class EmployeeService {
     
     public EmployeeDTO createEmployee(EmployeeDTO employeeDTO) {
         Employee employee = new Employee();
-        employee.setFirstName(employeeDTO.firstName());
-        employee.setLastName(employeeDTO.lastName());
-        employee.setEmail(employeeDTO.email());
-        employee.setPhone(employeeDTO.phone());
-        employee.setPosition(employeeDTO.position());
-        employee.setDepartment(employeeDTO.department());
-        employee.setSalary(employeeDTO.salary());
-        employee.setHireDate(employeeDTO.hireDate());
+        mapDtoToEntity(employeeDTO, employee);
         
         Employee savedEmployee = employeeRepository.save(employee);
         return convertToDTO(savedEmployee);
@@ -41,33 +34,37 @@ public class EmployeeService {
     
     @Transactional(readOnly = true)
     public EmployeeDTO getEmployeeById(Long id) {
-        Employee employee = employeeRepository.findById(id)
-            .orElseThrow(() -> new RuntimeException("Employee not found with id: " + id));
+        Employee employee = findEmployeeOrThrow(id);
         return convertToDTO(employee);
     }
     
     public EmployeeDTO updateEmployee(Long id, EmployeeDTO employeeDTO) {
-        Employee employee = employeeRepository.findById(id)
-            .orElseThrow(() -> new RuntimeException("Employee not found with id: " + id));
-        
-        employee.setFirstName(employeeDTO.firstName());
-        employee.setLastName(employeeDTO.lastName());
-        employee.setEmail(employeeDTO.email());
-        employee.setPhone(employeeDTO.phone());
-        employee.setPosition(employeeDTO.position());
-        employee.setDepartment(employeeDTO.department());
-        employee.setSalary(employeeDTO.salary());
-        employee.setHireDate(employeeDTO.hireDate());
+        Employee employee = findEmployeeOrThrow(id);
+        mapDtoToEntity(employeeDTO, employee);
         
         Employee updatedEmployee = employeeRepository.save(employee);
         return convertToDTO(updatedEmployee);
     }
     
     public void deleteEmployee(Long id) {
-        if (!employeeRepository.existsById(id)) {
-            throw new RuntimeException("Employee not found with id: " + id);
-        }
+        findEmployeeOrThrow(id);
         employeeRepository.deleteById(id);
+    }
+    
+    private Employee findEmployeeOrThrow(Long id) {
+        return employeeRepository.findById(id)
+            .orElseThrow(() -> new RuntimeException("Employee not found with id: " + id));
+    }
+    
+    private void mapDtoToEntity(EmployeeDTO dto, Employee entity) {
+        entity.setFirstName(dto.firstName());
+        entity.setLastName(dto.lastName());
+        entity.setEmail(dto.email());
+        entity.setPhone(dto.phone());
+        entity.setPosition(dto.position());
+        entity.setDepartment(dto.department());
+        entity.setSalary(dto.salary());
+        entity.setHireDate(dto.hireDate());
     }
     
     private EmployeeDTO convertToDTO(Employee employee) {
