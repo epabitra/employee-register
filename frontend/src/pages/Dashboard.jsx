@@ -34,7 +34,7 @@ const Dashboard = () => {
       setErrorMessage('');
     } catch (error) {
       console.error('Error loading employees:', error);
-      setErrorMessage('Failed to load employees. Please try again.');
+      setErrorMessage(error.message || 'Failed to load employees. Please try again.');
       setEmployees([]);
     } finally {
       setLoading(false);
@@ -45,15 +45,13 @@ const Dashboard = () => {
     try {
       await employeeService.createEmployee(employeeData);
       setSuccessMessage('Employee added successfully!');
+      setErrorMessage('');
       setCurrentPage(0);
       await loadEmployees();
       setTimeout(() => setSuccessMessage(''), 3000);
     } catch (error) {
       console.error('Error adding employee:', error);
-      if (error.response?.data?.message) {
-        throw new Error(error.response.data.message);
-      }
-      throw new Error('Failed to add employee. Please check the data and try again.');
+      throw error;
     }
   };
 
@@ -62,11 +60,13 @@ const Dashboard = () => {
       try {
         await employeeService.deleteEmployee(id);
         setSuccessMessage('Employee deleted successfully!');
+        setErrorMessage('');
         await loadEmployees();
         setTimeout(() => setSuccessMessage(''), 3000);
       } catch (error) {
         console.error('Error deleting employee:', error);
-        setErrorMessage('Failed to delete employee. Please try again.');
+        setErrorMessage(error.message || 'Failed to delete employee. Please try again.');
+        setTimeout(() => setErrorMessage(''), 5000);
       }
     }
   };

@@ -40,8 +40,16 @@ const EmployeeList = ({ employees, onDelete, loading }) => {
                 <td>
                   <span className="badge">{employee.department}</span>
                 </td>
-                <td>${parseFloat(employee.salary).toLocaleString()}</td>
-                <td>{new Date(employee.hireDate).toLocaleDateString()}</td>
+                <td>
+                  {employee.salary != null && !isNaN(Number(employee.salary))
+                    ? `$${parseFloat(employee.salary).toLocaleString()}`
+                    : '-'}
+                </td>
+                <td>
+                  {employee.hireDate && !isNaN(new Date(employee.hireDate).getTime())
+                    ? new Date(employee.hireDate).toLocaleDateString()
+                    : '-'}
+                </td>
                 <td>
                   <button
                     className="btn btn-danger btn-sm"

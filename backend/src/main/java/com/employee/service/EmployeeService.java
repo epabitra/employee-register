@@ -1,6 +1,8 @@
 package com.employee.service;
 
 import com.employee.dto.EmployeeDTO;
+import com.employee.exception.DuplicateEmailException;
+import com.employee.exception.EmployeeNotFoundException;
 import com.employee.model.Employee;
 import com.employee.repository.EmployeeRepository;
 import lombok.RequiredArgsConstructor;
@@ -8,8 +10,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.time.LocalDateTime;
 
 @Service
 @RequiredArgsConstructor
@@ -19,6 +19,10 @@ public class EmployeeService {
     private final EmployeeRepository employeeRepository;
     
     public EmployeeDTO createEmployee(EmployeeDTO employeeDTO) {
+        employeeRepository.findByEmail(employeeDTO.email()).ifPresent(existing -> {
+            throw new DuplicateEmailException(employeeDTO.email());
+        });
+
         Employee employee = new Employee();
         employee.setFirstName(employeeDTO.firstName());
         employee.setLastName(employeeDTO.lastName());
@@ -42,13 +46,19 @@ public class EmployeeService {
     @Transactional(readOnly = true)
     public EmployeeDTO getEmployeeById(Long id) {
         Employee employee = employeeRepository.findById(id)
-            .orElseThrow(() -> new RuntimeException("Employee not found with id: " + id));
+            .orElseThrow(() -> new EmployeeNotFoundException(id));
         return convertToDTO(employee);
     }
     
     public EmployeeDTO updateEmployee(Long id, EmployeeDTO employeeDTO) {
         Employee employee = employeeRepository.findById(id)
-            .orElseThrow(() -> new RuntimeException("Employee not found with id: " + id));
+            .orElseThrow(() -> new EmployeeNotFoundException(id));
+
+        employeeRepository.findByEmail(employeeDTO.email())
+            .filter(existing -> !existing.getId().equals(id))
+            .ifPresent(existing -> {
+                throw new DuplicateEmailException(employeeDTO.email());
+            });
         
         employee.setFirstName(employeeDTO.firstName());
         employee.setLastName(employeeDTO.lastName());
@@ -65,7 +75,7 @@ public class EmployeeService {
     
     public void deleteEmployee(Long id) {
         if (!employeeRepository.existsById(id)) {
-            throw new RuntimeException("Employee not found with id: " + id);
+            throw new EmployeeNotFoundException(id);
         }
         employeeRepository.deleteById(id);
     }
